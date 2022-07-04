@@ -1,0 +1,67 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdkVersion 30
+
+    defaultConfig {
+        applicationId "com.cjx.airplayjavademo"
+        minSdkVersion 27
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    packagingOptions {
+
+        exclude'META-INF/INDEX.LIST'
+        exclude'META-INF/io.netty.versions.properties'
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+//
+//    configurations.all {
+//        resolutionStrategy {
+//            force 'org.slf4j:slf4j-api:1.7.36'
+//        }
+//    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+
+    // airplay
+    implementation 'org.jmdns:jmdns:3.5.7'
+    implementation 'com.googlecode.plist:dd-plist:1.23'
+    implementation 'net.i2p.crypto:eddsa:0.3.0'
+    implementation 'org.whispersystems:curve25519-java:0.5.0'
+    // netty has slf4j
+//    implementation 'io.netty:netty-all:4.1.77.Final'
+    implementation ('io.netty:netty-all:4.1.77.Final'){
+        exclude group: 'org.slf4j:slf4j-api'
+    }
+//    implementation 'org.slf4j:slf4j-api:1.7.36'
+    implementation 'org.slf4j:slf4j-simple:1.7.25'
+//    implementation 'ch.qos.reload4j:reload4j:1.2.19'
+}
