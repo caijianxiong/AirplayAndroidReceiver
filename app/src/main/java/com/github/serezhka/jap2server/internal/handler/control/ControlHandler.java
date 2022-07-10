@@ -1,5 +1,7 @@
 package com.github.serezhka.jap2server.internal.handler.control;
 
+import android.util.Log;
+
 import com.github.serezhka.jap2server.internal.handler.session.Session;
 import com.github.serezhka.jap2server.internal.handler.session.SessionManager;
 
@@ -13,6 +15,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.rtsp.RtspResponseStatuses;
 import io.netty.handler.codec.rtsp.RtspVersions;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +40,7 @@ public abstract class ControlHandler extends ChannelInboundHandlerAdapter {
     }
 
     private boolean handleRequest(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
+//        Log.i("TAG", "handleRequest: " + request.toString());
         return handleRequest(ctx, sessionManager.getSession(request.headers().get(HEADER_ACTIVE_REMOTE)), request);
     }
 

@@ -11,6 +11,7 @@ import com.github.serezhka.jap2server.internal.handler.audio.AudioHandler;
 import com.github.serezhka.jap2server.internal.handler.mirroring.MirroringHandler;
 import com.github.serezhka.jap2server.internal.handler.session.Session;
 import com.github.serezhka.jap2server.internal.handler.session.SessionManager;
+
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.channel.ChannelHandler;
@@ -18,6 +19,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.rtsp.RtspMethods;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,14 +105,22 @@ public class RTSPHandler extends ControlHandler {
             response.content().writeBytes(content);
             return sendResponse(ctx, request, response);
         } else if (RtspMethods.RECORD.equals(request.method())) {
+
+            session.getAirPlay().printPlist("RECORD ",new ByteBufInputStream(request.content()));
             response.headers().add("Audio-Latency", "11025");
             response.headers().add("Audio-Jack-Status", "connected; type=analog");
             return sendResponse(ctx, request, response);
         } else if (RtspMethods.SET_PARAMETER.equals(request.method())) {
+            session.getAirPlay().printPlist("SET_PARAMETER ",new ByteBufInputStream(request.content()));
+
+            int volume = session.getAirPlay().rtspSetParameterInfo(new ByteBufInputStream(request.content()));
+            // todo 设置音量
             return sendResponse(ctx, request, response);
         } else if ("FLUSH".equals(request.method().toString())) {
             return sendResponse(ctx, request, response);
         } else if (RtspMethods.TEARDOWN.equals(request.method())) {
+            session.getAirPlay().printPlist("TEARDOWN ",new ByteBufInputStream(request.content()));
+
             MediaStreamInfo mediaStreamInfo = session.getAirPlay().rtspGetMediaStreamInfo(new ByteBufInputStream(request.content()));
             if (mediaStreamInfo != null) {
                 switch (mediaStreamInfo.getStreamType()) {
@@ -127,6 +137,8 @@ public class RTSPHandler extends ControlHandler {
             }
             return sendResponse(ctx, request, response);
         } else if ("POST".equals(request.method().toString()) && request.uri().equals("/audioMode")) {
+            session.getAirPlay().printPlist("audioMode ",new ByteBufInputStream(request.content()));
+
             return sendResponse(ctx, request, response);
         }
         return false;
