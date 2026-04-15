@@ -3,8 +3,11 @@ package com.github.serezhka.jap2lib;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 
+import android.util.Log;
+
 import javax.jmdns.JmmDNS;
 import javax.jmdns.ServiceInfo;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,11 +20,13 @@ public class AirPlayBonjour {
 
     private static final String AIRPLAY_SERVICE_TYPE = "._airplay._tcp.local";
     private static final String AIRTUNES_SERVICE_TYPE = "._raop._tcp.local";
+    private static final String HDPT_SERVICE_TYPE = "._hdktp._tcp.local";
 
     private final String serverName;
 
     private ServiceInfo airPlayService;
     private ServiceInfo airTunesService;
+    private ServiceInfo dhkptService;
 
     public AirPlayBonjour(String serverName) {
         this.serverName = serverName;
@@ -38,6 +43,30 @@ public class AirPlayBonjour {
                 airTunesServerName, airTunesPort, 0, 0, airTunesMDNSProps());
         JmmDNS.Factory.getInstance().registerService(airTunesService);
 //        log.info("{} service is registered on port {}", airTunesServerName + AIRTUNES_SERVICE_TYPE, airTunesPort);
+
+//        dhkptService = ServiceInfo.create(serverName + HDPT_SERVICE_TYPE,
+//                serverName, 56464, 0, 0, registerHdkpt(airPlayPort, airTunesPort));
+//        JmmDNS.Factory.getInstance().registerService(dhkptService);
+    }
+
+
+    public Map<String, String> registerHdkpt(int airPlayPort, int airTunesPort) {
+        HashMap<String, String> MDNSProps = new HashMap<>();
+        MDNSProps.put("vertical", "0"); // vertical=0
+        MDNSProps.put("aac", String.valueOf(airTunesPort));//TXT: aac=43573
+        MDNSProps.put("cmd", String.valueOf(airTunesPort));//TXT: aac=43573
+        MDNSProps.put("pcm", String.valueOf(airTunesPort));//TXT: aac=43573
+        MDNSProps.put("code", "803797");//TXT: code=803797
+        MDNSProps.put("h264", String.valueOf(airPlayPort));//TXT: h264=43572
+        MDNSProps.put("hevc", "43578");//TXT: hevc=43578
+        MDNSProps.put("name", serverName);//TXT: name=Kandao MT0822
+        MDNSProps.put("type", "1");//TXT: type=1
+        MDNSProps.put("alive", "43576");//TXT: alive=43576
+        MDNSProps.put("discover", "1");//TXT: discover=1
+
+        return MDNSProps;
+
+
     }
 
     public void stop() {
@@ -45,6 +74,7 @@ public class AirPlayBonjour {
 //        log.info("{} service is unregistered", airPlayService.getName());
         JmmDNS.Factory.getInstance().unregisterService(airTunesService);
 //        log.info("{} service is unregistered", airTunesService.getName());
+//        JmmDNS.Factory.getInstance().unregisterService(dhkptService);
     }
 
     private Map<String, String> airPlayMDNSProps() {

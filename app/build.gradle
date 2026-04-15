@@ -3,12 +3,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     defaultConfig {
         applicationId "com.cjx.airplayjavademo"
-        minSdkVersion 27
-        targetSdkVersion 30
+        minSdkVersion 31
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
 
@@ -63,5 +63,4 @@ dependencies {
     }
 //    implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'org.slf4j:slf4j-simple:1.7.25'
-//    implementation 'ch.qos.reload4j:reload4j:1.2.19'
 }
