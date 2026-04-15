@@ -1,5 +1,7 @@
 package com.github.serezhka.jap2lib;
 
+import android.util.Log;
+
 import com.github.serezhka.jap2lib.rtsp.MediaStreamInfo;
 
 import java.io.InputStream;
@@ -76,6 +78,12 @@ public class AirPlay {
         return rtsp.getMediaStreamInfo(in);
     }
 
+    public int rtspSetParameterInfo(InputStream in) throws Exception {
+        int volume = rtsp.getSetParameterVolume(in);
+        return volume;
+    }
+
+
     /**
      * {@code RTSP SETUP ENCRYPTION}
      * <p>
@@ -139,5 +147,9 @@ public class AirPlay {
             fairPlayAudioDecryptor = new FairPlayAudioDecryptor(getFairPlayAesKey(), rtsp.getEiv(), pairing.getSharedSecret());
         }
         fairPlayAudioDecryptor.decrypt(audio, audioLength);
+    }
+
+    public void printPlist(String methodName, InputStream inputStream) {
+        rtsp.printPlist(methodName, inputStream);
     }
 }
