@@ -55,6 +55,12 @@ public class MirroringHandler extends SimpleChannelInboundHandler<ByteBuf> {
                             airPlay.decryptVideo(payloadBytes);
                             processVideo(payloadBytes);
                         } else if (header.getPayloadType() == 1) {
+                            // --- 关键：从 header 中获取宽高并回调 ---
+                            int width = header.getWidth();
+                            int height = header.getHeight();
+                            log.info("Video size changed: {}x{}", width, height);
+                            // 如果你新增了 onVideoSize 回调：
+                            dataConsumer.onVideoSize(width, height);
                             processSPSPPS(payload);
                         } else {
                             log.debug("Unhandled payload type: {}", header.getPayloadType());

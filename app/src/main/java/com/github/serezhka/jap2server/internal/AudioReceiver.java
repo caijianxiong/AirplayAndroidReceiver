@@ -4,6 +4,7 @@ import com.github.serezhka.jap2server.internal.handler.audio.AudioHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollDatagramChannel;
@@ -40,6 +41,7 @@ public class AudioReceiver implements Runnable {
                     .group(workerGroup)
                     .channel(datagramChannelClass())
                     .localAddress(new InetSocketAddress(0)) // bind random port
+                    .option(ChannelOption.SO_RCVBUF, 2 * 1024 * 1024) // 设置接收缓冲区为 2MB
                     .handler(new ChannelInitializer<DatagramChannel>() {
                         @Override
                         public void initChannel(final DatagramChannel ch) {

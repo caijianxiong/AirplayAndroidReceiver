@@ -55,14 +55,21 @@ public class AudioHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
             if (diff <= 0) return; // 忽略过期包
 
-            // 阈值改进：如果差值太大（超过512）或积压太多（超过128），强制重同步
-            if (diff > buffer.length || packetsInBuffer > 128) {
-                log.warn("Force sync: packetsInBuffer={}, diff={}, resetting to {}", packetsInBuffer, diff, curSeqNo);
+            // --- 核心排查日志：检测丢包 ---
+            if (diff > 1) {
+                log.warn("Packet gap detected! Expected: {}, Got: {}. Missing: {} packets",
+                        (prevSeqNum + 1) & 0xFFFF, curSeqNo, diff - 1);
+            }
 
-                // 如果是积压导致的，为了让 dequeue 能跑通，我们将 prevSeqNum 设为当前包的前一个
+            // --- 核心优化：更灵敏的强制同步 ---
+            // 如果差值超过 64 (约700ms) 或者积压超过 64，就认为前面的包追不回来了，直接跳号
+            if (diff > 64 || packetsInBuffer > 64) {
+                log.warn("Force sync: packetsInBuffer={}, diff={}, jumping to {}", packetsInBuffer, diff, curSeqNo);
+
+                // 关键：跳过中间缺失的部分，将期望序号直接设为当前收到的这个包
+                // 这样接下来的 dequeue(curSeqNo) 就会成功执行
                 prevSeqNum = (curSeqNo - 1) & 0xFFFF;
 
-                // 如果是跨度太大导致的，清空旧数据
                 if (diff > buffer.length) {
                     resetBuffer();
                     prevSeqNum = 0;

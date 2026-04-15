@@ -21,7 +21,7 @@ import java.util.LinkedList;
 
 public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
 
-    private SurfaceView mSurfaceView;
+    private PlaySurfaceView mSurfaceView;
     private AirPlayServer airPlayServer;
     private static String TAG = "MainActivity";
 
@@ -84,8 +84,18 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
 
         @Override
-        public void onVideoFormat(VideoStreamInfo videoStreamInfo) {
+        public void onVideoSize(int width, int height) {
+            Log.i(TAG, "onVideoSize: " + width + "x" + height);
+            // 回到主线程更新 UI 尺寸
+            runOnUiThread(() -> {
+                if (mSurfaceView != null) {
+                    mSurfaceView.setMeasure(width, height);
+                }
+            });
+        }
 
+        @Override
+        public void onVideoFormat(VideoStreamInfo videoStreamInfo) {
         }
 
         @Override

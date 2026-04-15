@@ -7,6 +7,8 @@ public interface AirplayDataConsumer {
 
     void onVideo(byte[] video);
 
+    void onVideoSize(int width, int height);
+
     void onVideoFormat(VideoStreamInfo videoStreamInfo);
 
     void onAudio(byte[] audio);

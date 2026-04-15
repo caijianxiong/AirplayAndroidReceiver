@@ -99,6 +99,7 @@ public class AudioPlayer extends Thread {
 
     }
 
+    private int mNoOutputCounter = 0;
     private void decodeAndPlay(byte[] data) {
         // 1. 将数据塞入解码器输入缓冲区
         int inputIndex = mDecoder.dequeueInputBuffer(10000);
@@ -115,17 +116,43 @@ public class AudioPlayer extends Thread {
         if (outputIndex < 0) {
             Log.d(TAG, "decodeAndPlay outputIndex: " + outputIndex);
         }
-        while (outputIndex >= 0) {
-            ByteBuffer buffer = mDecoder.getOutputBuffer(outputIndex);
-            byte[] pcm = new byte[info.size];
-            buffer.get(pcm);
-            buffer.clear();
+
+        if (outputIndex == MediaCodec.INFO_TRY_AGAIN_LATER) {
+            mNoOutputCounter++;
+            // 连续多次拿不到输出，且队列里还有很多数据，可能是解码器需要重启
+            if (mNoOutputCounter > 50) {
+                Log.e(TAG, "Decoder seems stuck, outputIndex is -1. Reinitializing...");
+                reinitDecoder();
+                mNoOutputCounter = 0;
+            }
+        } else {
+            mNoOutputCounter = 0;
+            while (outputIndex >= 0) {
+                ByteBuffer buffer = mDecoder.getOutputBuffer(outputIndex);
+                byte[] pcm = new byte[info.size];
+                buffer.get(pcm);
+                buffer.clear();
 
 //            Log.d(TAG, "decodeAndPlay: " + pcm.length);
-            mTrack.write(pcm, 0, pcm.length); // 这里才是真正的 PCM 播放
+                mTrack.write(pcm, 0, pcm.length); // 这里才是真正的 PCM 播放
 
-            mDecoder.releaseOutputBuffer(outputIndex, false);
-            outputIndex = mDecoder.dequeueOutputBuffer(info, 0);
+                mDecoder.releaseOutputBuffer(outputIndex, false);
+                outputIndex = mDecoder.dequeueOutputBuffer(info, 0);
+            }
+        }
+
+    }
+
+    // 增加重置方法
+    private synchronized void reinitDecoder() {
+        try {
+            if (mDecoder != null) {
+                mDecoder.stop();
+                mDecoder.release();
+            }
+            initDecoder();
+        } catch (Exception e) {
+            Log.e(TAG, "reinitDecoder failed", e);
         }
     }
 

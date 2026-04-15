@@ -38,7 +38,18 @@ class RTSP {
     private byte[] eiv;
 
     MediaStreamInfo getMediaStreamInfo(InputStream rtspSetupPayload) throws Exception {
-        NSDictionary rtspSetup = (NSDictionary) BinaryPropertyListParser.parse(rtspSetupPayload);
+        if (rtspSetupPayload == null || rtspSetupPayload.available() == 0) {
+            return null;
+        }
+
+        NSDictionary rtspSetup;
+        try {
+            rtspSetup = (NSDictionary) BinaryPropertyListParser.parse(rtspSetupPayload);
+        } catch (Exception e) {
+            log.error("Failed to parse RTSP setup plist: {}", e.getMessage());
+            return null;
+        }
+
         if (rtspSetup.containsKey("streams")) {
             // assume one stream info per RTSP SETUP request
             HashMap stream = (HashMap) ((Object[]) rtspSetup.get("streams").toJavaObject())[0];
@@ -105,6 +116,8 @@ class RTSP {
     }
 
     void setup(InputStream in) throws Exception {
+        if (in == null || in.available() == 0) return; // 增加此行
+
         NSDictionary request = (NSDictionary) BinaryPropertyListParser.parse(in);
 
         if (request.containsKey("ekey")) {
