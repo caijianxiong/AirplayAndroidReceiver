@@ -64,7 +64,7 @@ public abstract class ControlHandler extends ChannelInboundHandlerAdapter {
         if (!HttpUtil.isKeepAlive(request)) {
             future.addListener(ChannelFutureListener.CLOSE);
         }
-        log.info("Request {} {} is handled!", request.method(), request.uri());
+//        log.info("Request {} {} is handled!", request.method(), request.uri());
         return true;
     }
 }

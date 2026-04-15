@@ -95,6 +95,7 @@ class RTSP {
         // ios 音量 -30----》0由小变大
         int volume = -15;
         try {
+            log.info("getSetParameterVolume data{}", data);
             volume = (int) Float.parseFloat(data.split(":")[1]);
         } catch (Exception e) {
             e.printStackTrace();

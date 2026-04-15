@@ -56,6 +56,13 @@ public class RTSPHandler extends ControlHandler {
                     case AUDIO:
                         AudioStreamInfo audioStreamInfo = (AudioStreamInfo) mediaStreamInfo;
 
+                        // --- 添加以下日志代码 ---
+                        request.content().resetReaderIndex(); // 重置读取位置以便读取全部内容
+                        String setupBody = request.content().toString(java.nio.charset.StandardCharsets.UTF_8);
+                        log.info("Audio SETUP Raw Body:\n{}", setupBody);
+                        request.content().resetReaderIndex(); // 记得再次重置，避免影响后续逻辑
+                        // ----------------------
+
                         log.info("Audio format is: {}", audioStreamInfo.getAudioFormat());
                         log.info("Audio compression type is: {}", audioStreamInfo.getCompressionType());
                         log.info("Audio samples per frame is: {}", audioStreamInfo.getSamplesPerFrame());
