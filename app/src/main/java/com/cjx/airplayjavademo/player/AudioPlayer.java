@@ -50,10 +50,12 @@ public class AudioPlayer extends Thread {
             byte[] csd0 = new byte[]{(byte) 0xF8, (byte) 0xE8, (byte) 0x50, (byte) 0x00};
             // 或者更简单的 2 字节版本（取决于具体参数）: {(byte) 0xF8, (byte) 0x02}
             format.setByteBuffer("csd-0", ByteBuffer.wrap(csd0));
+            Log.d(TAG, "initDecoder: ");
 
             mDecoder = MediaCodec.createDecoderByType(MIME_TYPE);
             mDecoder.configure(format, null, null, 0);
             mDecoder.start();
+            Log.d(TAG, "initDecoder: end");
         } catch (Exception e) {
             Log.e(TAG, "Decoder init failed", e);
         }
@@ -167,7 +169,20 @@ public class AudioPlayer extends Thread {
         }
 
         if (mDecoder != null) {
-            mDecoder.release();
+            Log.d(TAG, "stopPlay mDecoder stop: ");
+            try {
+                mDecoder.stop();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            try {
+                mDecoder.release();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            mDecoder = null;
+            Log.d(TAG, "stopPlay mDecoder stop end");
+
         }
     }
 

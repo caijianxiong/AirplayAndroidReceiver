@@ -58,20 +58,26 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     protected void onStop() {
         super.onStop();
-        mAudioPlayer.stopPlay();
-        mAudioPlayer = null;
-        mVideoPlayer.stopVideoPlay();
-        mVideoPlayer = null;
-        airplayDataConsumer = null;
-        airPlayServer.stop();
+        if (mAudioPlayer != null) {
+            mAudioPlayer.stopPlay();
+            mAudioPlayer = null;
+        }
+        if (mVideoPlayer != null) { // 必须检查
+            mVideoPlayer.stopVideoPlay();
+            mVideoPlayer = null;
+        }
+        // airplayDataConsumer 不需要设为 null，它由 airPlayServer 持有引用
+        if (airPlayServer != null) {
+            airPlayServer.stop();
+        }
     }
 
     private AirplayDataConsumer airplayDataConsumer = new AirplayDataConsumer() {
         @Override
         public void onVideo(byte[] video) {
 //            Logger.i(TAG, "rev video length :%d", video.length);
-            NALPacket nalPacket=new NALPacket();
-            nalPacket.nalData=video;
+            NALPacket nalPacket = new NALPacket();
+            nalPacket.nalData = video;
             if (mVideoPlayer != null) {
                 while (!mVideoCacheList.isEmpty()) {
                     mVideoPlayer.addPacker(mVideoCacheList.removeFirst());
@@ -101,8 +107,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         @Override
         public void onAudio(byte[] audio) {
 //            Logger.i(TAG, "rev audio length :%d", audio.length);
-            PCMPacket pcmPacket=new PCMPacket();
-            pcmPacket.data=audio;
+            PCMPacket pcmPacket = new PCMPacket();
+            pcmPacket.data = audio;
             if (mAudioPlayer != null) {
                 mAudioPlayer.addPacker(pcmPacket);
             }
@@ -132,6 +138,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     @Override
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
-
+        if (mVideoPlayer != null) {
+            mVideoPlayer.stopVideoPlay();
+            mVideoPlayer = null;
+        }
     }
 }
